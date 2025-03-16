@@ -1,3 +1,14 @@
+# How to Play the Game
+After loading the page, click on Set Custom Words
+Enter the words you want to use for dictation.
+Once you enter the words, click on Save & Start Game
+Click on Start Game on the new page.
+It will read the sound, if you want to hear it again, click on Repeat Word.
+Drag and drop the letters and verify. 
+If it is correct it will show the message, Corret and it will load the new word in 2 seconds.
+Happy playing!
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
