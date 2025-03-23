@@ -3,6 +3,8 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Volume2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import correctSound from "./audio/correct.wav";
+import incorrectSound from "./audio/incorrect.wav";
 
 const ALPHABETS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
@@ -10,9 +12,9 @@ const WordGame = ({ wordsList }) => {
   const [word, setWord] = useState("");
   const [userWord, setUserWord] = useState([]);
   const [result, setResult] = useState(null);
-  const [lastWord, setLastWord] = useState("");
   const [usedWords, setUsedWords] = useState([]);
   const [score, setScore] = useState(0);
+  const [feedbackClass, setFeedbackClass] = useState(""); // To trigger animations
 
   const startGame = () => {
     if (wordsList.length === usedWords.length) {
@@ -23,13 +25,13 @@ const WordGame = ({ wordsList }) => {
     let newWord;
     do {
       newWord = wordsList[Math.floor(Math.random() * wordsList.length)];
-    } while (usedWords.includes(newWord)); // Ensure the word hasn't been used
+    } while (usedWords.includes(newWord));
 
     setWord(newWord.toUpperCase());
-    setLastWord(newWord);
     setUserWord(new Array(newWord.length).fill(""));
     setResult(null);
-    setUsedWords([...usedWords, newWord]); // Add the word to usedWords
+    setUsedWords([...usedWords, newWord]);
+    setFeedbackClass(""); // Reset animations
     speakWord(newWord);
   };
 
@@ -43,13 +45,24 @@ const WordGame = ({ wordsList }) => {
   };
 
   const verifyWord = () => {
-    if (userWord.join("") === word) {
+    const isCorrect = userWord.join("") === word;
+
+    if (isCorrect) {
       setResult("Correct!");
-      setScore(score + 1); // Increment score for a correct answer
+      setScore(score + 1);
+      setFeedbackClass("animate-bounce text-green-500"); // Trigger bounce effect
+      playSound(correctSound); // Play success sound
       setTimeout(startGame, 2000);
     } else {
       setResult("Try Again");
+      setFeedbackClass("animate-shake text-red-500"); // Trigger shake effect
+      playSound(incorrectSound); // Play error sound
     }
+  };
+
+  const playSound = (sound) => {
+    const audio = new Audio(sound);
+    audio.play();
   };
 
   const Letter = ({ letter }) => {
@@ -84,8 +97,9 @@ const WordGame = ({ wordsList }) => {
     return (
       <div
         ref={drop}
-        className="w-10 h-10 border border-dashed flex items-center justify-center m-1 cursor-pointer"
-        style={{ backgroundColor: isOver ? "lightgreen" : "white" }}
+        className={`w-10 h-10 border border-dashed flex items-center justify-center m-1 cursor-pointer ${
+          isOver ? "bg-lightgreen" : "bg-white"
+        }`}
         onClick={() => removeLetter(index)}
       >
         {userWord[index]}
@@ -110,12 +124,18 @@ const WordGame = ({ wordsList }) => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="p-4 flex flex-col items-center">
-        <button onClick={startGame} className="p-2 bg-green-500 text-white rounded mt-4">
+        <button
+          onClick={startGame}
+          className="p-2 bg-green-500 text-white rounded mt-4"
+        >
           Start Game
         </button>
 
         {word && (
-          <button onClick={() => speakWord(word)} className="mt-2 flex items-center gap-2 p-2 bg-gray-200 rounded">
+          <button
+            onClick={() => speakWord(word)}
+            className="mt-2 flex items-center gap-2 p-2 bg-gray-200 rounded"
+          >
             <Volume2 size={20} />
             Repeat Word
           </button>
@@ -142,7 +162,10 @@ const WordGame = ({ wordsList }) => {
           Verify
         </button>
 
-        {result && <p className="mt-2 text-lg">{result}</p>}
+        {/* Feedback */}
+        {result && (
+          <p className={`mt-2 text-lg ${feedbackClass}`}>{result}</p>
+        )}
 
         {/* Score Display */}
         <p className="mt-2 text-lg">Score: {score}</p>
