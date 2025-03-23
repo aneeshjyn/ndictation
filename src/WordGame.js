@@ -15,6 +15,11 @@ const WordGame = ({ wordsList }) => {
   const [usedWords, setUsedWords] = useState([]);
   const [score, setScore] = useState(0);
   const [feedbackClass, setFeedbackClass] = useState(""); // To trigger animations
+  const [isMuted, setIsMuted] = useState(false); // State to mute/unmute sounds
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
 
   const startGame = () => {
     if (wordsList.length === usedWords.length) {
@@ -51,12 +56,12 @@ const WordGame = ({ wordsList }) => {
       setResult("Correct!");
       setScore(score + 1);
       setFeedbackClass("animate-bounce text-green-500"); // Trigger bounce effect
-      playSound(correctSound); // Play success sound
+      if (!isMuted) playSound(correctSound); // Play success sound if not muted
       setTimeout(startGame, 2000);
     } else {
       setResult("Try Again");
       setFeedbackClass("animate-shake text-red-500"); // Trigger shake effect
-      playSound(incorrectSound); // Play error sound
+      if (!isMuted) playSound(incorrectSound); // Play error sound if not muted
     }
   };
 
@@ -140,6 +145,16 @@ const WordGame = ({ wordsList }) => {
             Repeat Word
           </button>
         )}
+
+        {/* Mute Button */}
+        <button
+          onClick={toggleMute}
+          className={`mt-4 p-2 rounded ${
+            isMuted ? "bg-red-500 text-white" : "bg-gray-500 text-white"
+          }`}
+        >
+          {isMuted ? "Unmute Sounds" : "Mute Sounds"}
+        </button>
 
         {/* Display All Alphabets */}
         <div className="flex flex-wrap w-64 justify-center mt-4">
