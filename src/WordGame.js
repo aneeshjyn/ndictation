@@ -11,19 +11,25 @@ const WordGame = ({ wordsList }) => {
   const [userWord, setUserWord] = useState([]);
   const [result, setResult] = useState(null);
   const [lastWord, setLastWord] = useState("");
+  const [usedWords, setUsedWords] = useState([]);
+  const [score, setScore] = useState(0);
 
   const startGame = () => {
-    if (wordsList.length === 0) return; // Prevent errors if no words exist
+    if (wordsList.length === usedWords.length) {
+      setResult("Game Over! You've completed all the words.");
+      return;
+    }
 
     let newWord;
     do {
       newWord = wordsList[Math.floor(Math.random() * wordsList.length)];
-    } while (newWord === lastWord && wordsList.length > 1);
+    } while (usedWords.includes(newWord)); // Ensure the word hasn't been used
 
     setWord(newWord.toUpperCase());
     setLastWord(newWord);
     setUserWord(new Array(newWord.length).fill(""));
     setResult(null);
+    setUsedWords([...usedWords, newWord]); // Add the word to usedWords
     speakWord(newWord);
   };
 
@@ -39,6 +45,7 @@ const WordGame = ({ wordsList }) => {
   const verifyWord = () => {
     if (userWord.join("") === word) {
       setResult("Correct!");
+      setScore(score + 1); // Increment score for a correct answer
       setTimeout(startGame, 2000);
     } else {
       setResult("Try Again");
@@ -136,6 +143,9 @@ const WordGame = ({ wordsList }) => {
         </button>
 
         {result && <p className="mt-2 text-lg">{result}</p>}
+
+        {/* Score Display */}
+        <p className="mt-2 text-lg">Score: {score}</p>
 
         {/* Link to Input Page */}
         <Link to="/input" className="mt-4 text-blue-500 underline">
